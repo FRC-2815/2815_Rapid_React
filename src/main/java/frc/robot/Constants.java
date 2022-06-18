@@ -31,14 +31,14 @@ public final class Constants {
         // The Robot Characterization Toolsuite provides a convenient tool for obtaining
         // these
         // values for your robot.
-        public static final double ksVolts = 0.146;
-        public static final double kvVoltSecondsPerMeter = 2.17;
-        public static final double kaVoltSecondsSquaredPerMeter = 0.308;
+        public static double ksVolts = 0;
+        public static double kvVoltSecondsPerMeter = 0;
+        public static double kaVoltSecondsSquaredPerMeter = 0;
 
         // Example value only - as above, this must be tuned for your drive!
-        public static final double kPDriveVel = 2.59;
+        public static double kPDriveVel = 0;
 
-        public static final double kTrackwidthMeters = 0.66;
+        public static final double kTrackwidthMeters = Units.inchesToMeters(18);
         public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(
                 kTrackwidthMeters);
         
@@ -64,6 +64,7 @@ public final class Constants {
         //Custom constants for NEOs and SparkMax's
         public static final double kMaxRPM = 5700;
         public static final double kWheelDiameter = Units.inchesToMeters(6);
+        public static final double kWheelRadius = Units.inchesToMeters(3);
         public static final double kMotorGearsToWheelGears = 10.71;
         public static final double kRevolutionsToMeters = Math.PI * kWheelDiameter / kMotorGearsToWheelGears;
         public static final double kRPMtoMetersPerSecond = Math.PI * kWheelDiameter / (60 * kMotorGearsToWheelGears);

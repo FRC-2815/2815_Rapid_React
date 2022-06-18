@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.REVPhysicsSim;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -10,19 +9,11 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
-import edu.wpi.first.wpilibj.simulation.ADXRS450_GyroSim;
-import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
-import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotGearing;
-import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotMotor;
-import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotWheelSize;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
@@ -37,22 +28,13 @@ public class DriveTrain extends SubsystemBase {
     NetworkTableEntry m_yEntry = NetworkTableInstance.getDefault().getTable("troubleshooting").getEntry("Y");
 
     private final DifferentialDrive m_drive = new DifferentialDrive(m_leftFrontMotor, m_rightFrontMotor);
-    private final DifferentialDrivetrainSim m_driveSim = DifferentialDrivetrainSim.createKitbotSim(
-                                                                                                KitbotMotor.kDoubleNEOPerSide,
-                                                                                                KitbotGearing.k10p71,
-                                                                                                KitbotWheelSize.kSixInch,
-                                                                                                null
-    );
 
     private final RelativeEncoder m_leftEncoder = m_leftFrontMotor.getEncoder();    
     private final RelativeEncoder m_rightEncoder = m_rightFrontMotor.getEncoder();
 
     private final Gyro m_gyro = new ADXRS450_Gyro();
-    private final ADXRS450_GyroSim m_gyroSim = new ADXRS450_GyroSim((ADXRS450_Gyro)m_gyro);
 
     private final DifferentialDriveOdometry m_odometry;
-
-    private final Field2d m_field = new Field2d();
 
     public DriveTrain() {
         m_leftFrontMotor.restoreFactoryDefaults();
@@ -77,22 +59,6 @@ public class DriveTrain extends SubsystemBase {
         m_leftBackMotor.setIdleMode(IdleMode.kBrake);
         m_rightFrontMotor.setIdleMode(IdleMode.kBrake);
         m_rightBackMotor.setIdleMode(IdleMode.kBrake);
-
-        REVPhysicsSim.getInstance().addSparkMax(m_leftFrontMotor, DCMotor.getNEO(2));
-        REVPhysicsSim.getInstance().addSparkMax(m_rightFrontMotor, DCMotor.getNEO(2));
-
-        SmartDashboard.putData("field", m_field);
-    }
-
-    @Override
-    public void simulationPeriodic() {
-        m_driveSim.setInputs(m_leftFrontMotor.get() * RobotController.getInputVoltage(), m_rightFrontMotor.get() * RobotController.getInputVoltage());
-
-        m_driveSim.update(0.02);
-
-        REVPhysicsSim.getInstance().run();
-
-        m_gyroSim.setAngle(-m_driveSim.getHeading().getDegrees());
     }
 
     @Override
@@ -107,7 +73,6 @@ public class DriveTrain extends SubsystemBase {
         SmartDashboard.putString("Pose", getPose().toString());
         SmartDashboard.putString("Pose Rot", getPose().getRotation().toString());
         SmartDashboard.putString("Pose Dist", getPose().getTranslation().toString());
-        m_field.setRobotPose(m_odometry.getPoseMeters());
     }
 
     public Pose2d getPose() {
