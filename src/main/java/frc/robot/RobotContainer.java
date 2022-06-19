@@ -8,7 +8,6 @@ import java.util.List;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -51,10 +50,7 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     var autoVoltageConstraint =
         new DifferentialDriveVoltageConstraint(
-            new SimpleMotorFeedforward(
-                DriveConstants.ksVolts,
-                DriveConstants.kvVoltSecondsPerMeter,
-                DriveConstants.kaVoltSecondsSquaredPerMeter),
+            DriveConstants.kFeedforward,
             DriveConstants.kDriveKinematics,
             10);
 
@@ -69,11 +65,9 @@ public class RobotContainer {
     Trajectory exampleTrajectory =
         TrajectoryGenerator.generateTrajectory(
             // Start at the origin facing the +X direction
-            new Pose2d(5, 5, new Rotation2d(5)),
-            // Pass through these two interior waypoints, making an 's' curve path
-            List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
-            // End 3 meters straight ahead of where we started, facing forward
-            new Pose2d(3, 0, new Rotation2d(0)),
+            new Pose2d(3, 3, new Rotation2d(0)),
+            List.of(new Translation2d(6, 0)),
+            new Pose2d(6, 3, new Rotation2d(0)),
             // Pass config
             config);
 
@@ -82,10 +76,7 @@ public class RobotContainer {
             exampleTrajectory,
             m_driveTrain::getPose,
             new RamseteController(AutoConstants.kRamseteB, AutoConstants.kRamseteZeta),
-            new SimpleMotorFeedforward(
-                DriveConstants.ksVolts,
-                DriveConstants.kvVoltSecondsPerMeter,
-                DriveConstants.kaVoltSecondsSquaredPerMeter),
+            DriveConstants.kFeedforward,
             DriveConstants.kDriveKinematics,
             m_driveTrain::getWheelSpeeds,
             new PIDController(DriveConstants.kPDriveVel, 0, 0),
