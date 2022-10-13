@@ -24,15 +24,23 @@ public class Drive extends CommandBase {
 // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+<<<<<<< HEAD
     mDriveTrain.resetEncoders();
     mDriveTrain.resetGyro();
+=======
+    driveTrain.resetEncoders();
+>>>>>>> cebed2c35452ba9ca70f570a80ee54390eb27361
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+<<<<<<< HEAD
     mDriveTrain.drive(mForwardAxis.getAsDouble(), mTurnAxis.getAsDouble());
     mDriveTrain.update();
+=======
+    driveTrain.drive(forwardAxis.getAsDouble(), turnAxis.getAsDouble());
+>>>>>>> cebed2c35452ba9ca70f570a80ee54390eb27361
   }
 
   // Called once the command ends or is interrupted.

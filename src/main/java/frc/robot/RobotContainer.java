@@ -4,12 +4,24 @@
 
 package frc.robot;
 
+import java.util.List;
 
+<<<<<<< HEAD
 import edu.wpi.first.wpilibj.Joystick;
+=======
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.RamseteController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
+>>>>>>> cebed2c35452ba9ca70f570a80ee54390eb27361
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+<<<<<<< HEAD
 import edu.wpi.first.wpilibj2.command.CommandGroupBase;
 import frc.robot.Autos.OneBall;
 import frc.robot.Autos.TwoBall;
@@ -18,13 +30,21 @@ import frc.robot.commands.Drive;
 import frc.robot.commands.Index;
 import frc.robot.commands.Lift;
 import frc.robot.subsystems.Climber;
+=======
+import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import frc.robot.Constants.AutoConstants;
+import frc.robot.Constants.DriveConstants;
+import frc.robot.commands.Drive;
+>>>>>>> cebed2c35452ba9ca70f570a80ee54390eb27361
 import frc.robot.subsystems.DriveTrain;
+
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
+<<<<<<< HEAD
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Lifter;
 
@@ -39,11 +59,16 @@ public class RobotContainer {
   private Index mIndex;
   private Climb mClimb;
   private Lift mLift;
+=======
+public class RobotContainer {
 
-  SendableChooser<CommandGroupBase> autoChooser;
+  private final DriveTrain m_driveTrain = new DriveTrain();
+>>>>>>> cebed2c35452ba9ca70f570a80ee54390eb27361
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  private Drive drive;
+
   public RobotContainer() {
+<<<<<<< HEAD
     autoChooser = new SendableChooser<>();
 
     autoChooser.addOption("OneBall", new OneBall());
@@ -52,16 +77,13 @@ public class RobotContainer {
     SmartDashboard.putData(autoChooser);
 
     // Configure the button bindings
+=======
+>>>>>>> cebed2c35452ba9ca70f570a80ee54390eb27361
     configureButtonBindings();
   }
 
-  /**
-   * Use this method to define your button->command mappings. Buttons can be created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-   */
   private void configureButtonBindings() {
+<<<<<<< HEAD
     XboxController mController = new XboxController(0);
     Joystick mJoystick = new Joystick(1);
 
@@ -74,10 +96,56 @@ public class RobotContainer {
     mIndexer.setDefaultCommand(mIndex);
     mClimber.setDefaultCommand(mClimb);
     mLifter.setDefaultCommand(mLift);
+=======
+    XboxController controller = new XboxController(0);
+    
+    drive = new Drive(m_driveTrain, () -> controller.getLeftY(), () -> controller.getRightX());
+
+    m_driveTrain.setDefaultCommand(drive);
+>>>>>>> cebed2c35452ba9ca70f570a80ee54390eb27361
   }
 
   public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
-  }
+    var autoVoltageConstraint =
+        new DifferentialDriveVoltageConstraint(
+            DriveConstants.kFeedforward,
+            DriveConstants.kDriveKinematics,
+            10);
 
+    TrajectoryConfig config =
+        new TrajectoryConfig(
+                AutoConstants.kMaxSpeedMetersPerSecond,
+                AutoConstants.kMaxAccelerationMetersPerSecondSquared)
+            .setKinematics(DriveConstants.kDriveKinematics)
+            .addConstraint(autoVoltageConstraint);
+
+    // An example trajectory to follow.  All units in meters.
+    Trajectory exampleTrajectory =
+        TrajectoryGenerator.generateTrajectory(
+            // Start at the origin facing the +X direction
+            new Pose2d(3, 3, new Rotation2d(0)),
+            List.of(new Translation2d(6, 0)),
+            new Pose2d(6, 3, new Rotation2d(0)),
+            // Pass config
+            config);
+
+    RamseteCommand ramseteCommand =
+        new RamseteCommand(
+            exampleTrajectory,
+            m_driveTrain::getPose,
+            new RamseteController(AutoConstants.kRamseteB, AutoConstants.kRamseteZeta),
+            DriveConstants.kFeedforward,
+            DriveConstants.kDriveKinematics,
+            m_driveTrain::getWheelSpeeds,
+            new PIDController(DriveConstants.kPDriveVel, 0, 0),
+            new PIDController(DriveConstants.kPDriveVel, 0, 0),
+            m_driveTrain::tankDriveVolts,
+            m_driveTrain);
+
+    // Reset odometry to the starting pose of the trajectory.
+    m_driveTrain.resetOdometry(exampleTrajectory.getInitialPose());
+
+    // Run path following command, then stop at the end.
+    return ramseteCommand.andThen(() -> m_driveTrain.tankDriveVolts(0, 0));
+  }
 }
