@@ -5,32 +5,31 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Indexer;
 
 public class AutoDump extends CommandBase {
-    Indexer indexer;
-    boolean finished;
-    double seconds;
+    private final Indexer mIndexer = Indexer.getInstance();
+    private double mSeconds;
+    private boolean finished;
 
-    public final Timer timer;
+    private final Timer timer;
     
-    public AutoDump(Indexer i, double s) {
-        indexer = i;
-        seconds = s;
+    public AutoDump(double s) {
+        mSeconds = s;
         timer = new Timer();
 
-        addRequirements(indexer);
+        addRequirements(mIndexer);
     }
 
     @Override
     public void initialize() {
         timer.start();
-        indexer.outtake();
+        mIndexer.exhaust();
     }
 
     @Override
     public void execute() {
-        if (timer.get() >= seconds) {
+        if (timer.get() >= mSeconds) {
             finished = true;
         }
-        indexer.outtake();
+        mIndexer.exhaust();
     }
 
     @Override

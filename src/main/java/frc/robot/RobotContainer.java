@@ -5,26 +5,18 @@
 package frc.robot;
 
 
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandGroupBase;
-import frc.robot.Autos.Test;
-import frc.robot.Autos.Tarmac1.TarmacCenter.T1_PC_Position1;
-import frc.robot.Autos.Tarmac1.TarmacCenter.T1_PC_Position1_2;
-import frc.robot.Autos.Tarmac1.TarmacCenter.T1_PC_Position2;
-import frc.robot.Autos.Tarmac1.TarmacPosition1.T1_P1_Position1;
-import frc.robot.Autos.Tarmac1.TarmacPosition1.T1_P1_Position1_2;
-import frc.robot.Autos.Tarmac1.TarmacPosition2.T1_P2_Position2;
-import frc.robot.Autos.Tarmac1.TarmacPosition2.T1_P2_Position2_1;
-import frc.robot.Autos.Tarmac2.TarmacCenter.T2_PC_NoExtra;
-import frc.robot.Autos.Tarmac2.TarmacPosition3.T2_P3_Position3;
-import frc.robot.Autos.Tarmac2.TarmacPosition3.T2_P3_Position4;
-import frc.robot.Autos.Tarmac2.TarmacPosition4.T2_P4_Position4;
+import frc.robot.Autos.OneBall;
+import frc.robot.Autos.TwoBall;
 import frc.robot.commands.Climb;
 import frc.robot.commands.Drive;
 import frc.robot.commands.Index;
+import frc.robot.commands.Lift;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DriveTrain;
 /**
@@ -34,41 +26,30 @@ import frc.robot.subsystems.DriveTrain;
  * subsystems, commands, and button mappings) should be declared here.
  */
 import frc.robot.subsystems.Indexer;
+import frc.robot.subsystems.Lifter;
+
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  DriveTrain driveTrain = new DriveTrain();
-  Indexer indexer = new Indexer();
-  Climber climber = new Climber();
+  private final DriveTrain mDriveTrain = DriveTrain.getInstance();
+  private final Indexer mIndexer = Indexer.getInstance();
+  private final Climber mClimber = Climber.getInstance();
+  private final Lifter mLifter = Lifter.getInstance();
 
-  Drive drive;
-  Index index;
-  Climb climb;
+  private Drive mDrive;
+  private Index mIndex;
+  private Climb mClimb;
+  private Lift mLift;
 
   SendableChooser<CommandGroupBase> autoChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    SmartDashboard.putNumber("Rotational P", Constants.r_kP);
-    SmartDashboard.putNumber("Rotational I", Constants.r_kI);
-    SmartDashboard.putNumber("Rotational D", Constants.r_kD);
-
     autoChooser = new SendableChooser<>();
-    autoChooser.addOption("T1_PC_Position1_2", new T1_PC_Position1_2(driveTrain, indexer));
-    autoChooser.addOption("T1_PC_Position1", new T1_PC_Position1(driveTrain, indexer));
-    autoChooser.addOption("T1_PC_Position2", new T1_PC_Position2(driveTrain, indexer));
-    autoChooser.addOption("T1_P1_Position1_2", new T1_P1_Position1_2(driveTrain, indexer));
-    autoChooser.addOption("T1_P1_Position1", new T1_P1_Position1(driveTrain, indexer));
-    autoChooser.addOption("T1_P2_Position2_1", new T1_P2_Position2_1(driveTrain, indexer));
-    autoChooser.addOption("T1_P2_Position2", new T1_P2_Position2(driveTrain, indexer));
-    autoChooser.addOption("T2_PC_NoExtra", new T2_PC_NoExtra(driveTrain, indexer));
-    autoChooser.addOption("T2_P3_Position3", new T2_P3_Position3(driveTrain, indexer));
-    autoChooser.addOption("T2_P3_Position4", new T2_P3_Position4(driveTrain, indexer));
-    autoChooser.addOption("T2_P4_Position4", new T2_P4_Position4(driveTrain, indexer));
-    autoChooser.setDefaultOption("Test", new Test(driveTrain));
+
+    autoChooser.addOption("OneBall", new OneBall());
+    autoChooser.addOption("TwoBall", new TwoBall());
 
     SmartDashboard.putData(autoChooser);
-
-
 
     // Configure the button bindings
     configureButtonBindings();
@@ -81,15 +62,18 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    XboxController controller = new XboxController(0);
+    XboxController mController = new XboxController(0);
+    Joystick mJoystick = new Joystick(1);
 
-    drive = new Drive(driveTrain, () -> controller.getRightX(), () -> controller.getLeftY());
-    index = new Index(indexer, () -> controller.getAButton(), () -> controller.getBButton(), () -> controller.getXButton(), () -> controller.getYButton());
-    climb = new Climb(climber, () -> controller.getLeftBumper(), () -> controller.getRightBumper());
+    mDrive = new Drive(() -> mController.getRightX(), () -> mController.getLeftY());
+    mIndex = new Index(() -> mJoystick.getRawButton(2), () -> mJoystick.getRawButton(1));
+    mClimb = new Climb(() -> mController.getLeftBumper(), () -> mController.getRightBumper());
+    mLift = new Lift(() -> mJoystick.getRawButton(3), () -> mJoystick.getRawButton(4));
 
-    driveTrain.setDefaultCommand(drive);
-    indexer.setDefaultCommand(index);
-    climber.setDefaultCommand(climb);
+    mDriveTrain.setDefaultCommand(mDrive);
+    mIndexer.setDefaultCommand(mIndex);
+    mClimber.setDefaultCommand(mClimb);
+    mLifter.setDefaultCommand(mLift);
   }
 
   public Command getAutonomousCommand() {

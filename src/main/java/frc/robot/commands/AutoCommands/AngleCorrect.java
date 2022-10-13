@@ -4,27 +4,26 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveTrain;
 
 public class AngleCorrect extends CommandBase {
-    DriveTrain driveTrain;
-    double angle;
-    boolean finished;
+    private final DriveTrain mDriveTrain = DriveTrain.getInstance();
+    private double mAngle;
+    private boolean finished;
 
-    public AngleCorrect(DriveTrain DT, double a) {
-        driveTrain = DT;
-        angle = a;
+    public AngleCorrect(double a) {
+        mAngle = a;
 
-        addRequirements(driveTrain);
+        addRequirements(mDriveTrain);
     }
 
     @Override
     public void initialize() {
         reset();
-        driveTrain.setAngle(angle);
+        mDriveTrain.setAngle(mAngle);
     }
 
     @Override
     public void execute() {
-        finished = driveTrain.rotatePID();
-        driveTrain.update();
+        finished = mDriveTrain.rotatePID();
+        mDriveTrain.update();
     }
     @Override
     public void end(boolean interrupted) {
@@ -38,8 +37,8 @@ public class AngleCorrect extends CommandBase {
     }
 
     private void reset() {
-        driveTrain.resetGyro();
-        driveTrain.resetEncoders();
-        driveTrain.setCurrentHedding();
+        mDriveTrain.resetGyro();
+        mDriveTrain.resetEncoders();
+        mDriveTrain.setCurrentHedding();
     }
 }

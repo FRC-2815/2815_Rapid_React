@@ -2,26 +2,26 @@ package frc.robot.commands.AutoCommands;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.Indexer;
+import frc.robot.subsystems.Lifter;
 
-public class AutoIndex extends CommandBase {
-    private final Indexer mIndexer = Indexer.getInstance();
-    private double mSeconds;
+public class AutoLower extends CommandBase {
+    private final Lifter mLifter = Lifter.getInstance();
     private boolean mFinished;
+    private double mSeconds;
 
-    private final Timer timer;
+    public final Timer timer;
     
-    public AutoIndex(double s) {
+    public AutoLower(double s) {
         mSeconds = s;
         timer = new Timer();
 
-        addRequirements(mIndexer);
+        addRequirements(mLifter);
     }
 
     @Override
     public void initialize() {
         timer.start();
-        mIndexer.exhaust();
+        mLifter.lower();
     }
 
     @Override
@@ -29,7 +29,7 @@ public class AutoIndex extends CommandBase {
         if (timer.get() >= mSeconds) {
             mFinished = true;
         }
-        mIndexer.exhaust();
+        mLifter.lower();
     }
 
     @Override

@@ -6,17 +6,16 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Climber;
 
 public class Climb extends CommandBase {
-    public Climber climber;
-    public BooleanSupplier leftBumper;
-    public BooleanSupplier rightBumper;
-    public boolean finished;
+    private final Climber mClimber = Climber.getInstance();
+    private BooleanSupplier mLeftBumper;
+    private BooleanSupplier mRightBumper;
+    private boolean mFinished;
 
-    public Climb(Climber c, BooleanSupplier lB, BooleanSupplier rB) {
-        climber = c;
-        leftBumper = lB;
-        rightBumper = rB;
+    public Climb(BooleanSupplier lB, BooleanSupplier rB) {
+        mLeftBumper = lB;
+        mRightBumper = rB;
 
-        addRequirements(climber);
+        addRequirements(mClimber);
     }
 
     @Override
@@ -26,12 +25,12 @@ public class Climb extends CommandBase {
 
     @Override
     public void execute() {
-        if (leftBumper.getAsBoolean()) {
-            climber.up();
-        } else if (rightBumper.getAsBoolean()) {
-            climber.down();
+        if (mLeftBumper.getAsBoolean()) {
+            mClimber.up();
+        } else if (mRightBumper.getAsBoolean()) {
+            mClimber.down();
         } else {
-            climber.off();
+            mClimber.off();
         }
     }
 
@@ -42,6 +41,6 @@ public class Climb extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return finished;
+        return mFinished;
     }
 }
